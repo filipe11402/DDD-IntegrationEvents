@@ -56,6 +56,7 @@ public class IntegrationEventPublisherService : BackgroundService
                     AddEventToQueue(channel, integrationEvent);
                 }
 
+                connection.Close();
                 _logger.LogInformation($"Events that were published are being removed");
                 dbContext.Events.RemoveRange(events!);
                 await dbContext.SaveChangesAsync();
@@ -80,7 +81,7 @@ public class IntegrationEventPublisherService : BackgroundService
             arguments: null
             );
 
-        //Using defauçt exchange
+        //Using default exchange
         channel.BasicPublish(
             exchange: "",
             routingKey: integrationEvent.EventName,

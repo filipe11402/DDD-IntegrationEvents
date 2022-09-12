@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sales.API.Domain.Repositories;
+using Sales.API.Infrastructure.EventBus;
 
 namespace Sales.API.Infrastructure;
 
@@ -13,6 +14,8 @@ public static class InjectDependencies
         });
 
         services.AddScoped<IClientRepository, ClientRepository>();
+        services.AddSingleton<IEventBusSubscriptions, EventBusSubscriptions>();
+        services.AddSingleton<IEventBus, RabbitMQBus>();
         //TODO: rabbit MQ
     }
 }

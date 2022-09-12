@@ -1,5 +1,4 @@
 ﻿using Hospital.API.Domain.Abstract;
-using Hospital.API.Domain.Entities;
 using Hospital.API.Domain.Events;
 
 namespace Hospital.API.Infrastructure.Mappers;
