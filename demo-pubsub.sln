@@ -5,18 +5,18 @@ VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{37EC48E5-1FDF-44BE-A636-ED122996C32F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoPubSub.API", "src\DemoPubSub.API\DemoPubSub.API.csproj", "{D8A3FBC8-35CD-4979-938D-9C4D0CC3DAE0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sales.API", "src\Sales.API\Sales.API.csproj", "{6CDDC564-5576-4887-9F90-AFF41DFA62A5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitMQ.Publisher", "src\RabbitMQ\RabbitMQ.Publisher.csproj", "{767387AD-CA31-4D75-A273-54AFA984DA8D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sales.API", "src\Sales.API\Sales.API.csproj", "{6CDDC564-5576-4887-9F90-AFF41DFA62A5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hospital.API", "src\Hospital.API\Hospital.API.csproj", "{FBBF1D31-338E-4212-8539-2C9CE59D02C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hospital.API", "src\Hospital.API\Hospital.API.csproj", "{FBBF1D31-338E-4212-8539-2C9CE59D02C9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C9846B81-97DF-44E8-9CD9-EB33DACE6AA1}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1165DD25-0A02-4AC6-80E8-D2EACF7317EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hospital.API.Tests", "tests\Hospital.API.Tests\Hospital.API.Tests.csproj", "{8F7EFCF5-6AE6-44BB-81D8-17815338D04B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,14 +24,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D8A3FBC8-35CD-4979-938D-9C4D0CC3DAE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8A3FBC8-35CD-4979-938D-9C4D0CC3DAE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8A3FBC8-35CD-4979-938D-9C4D0CC3DAE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8A3FBC8-35CD-4979-938D-9C4D0CC3DAE0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{767387AD-CA31-4D75-A273-54AFA984DA8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{767387AD-CA31-4D75-A273-54AFA984DA8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{767387AD-CA31-4D75-A273-54AFA984DA8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{767387AD-CA31-4D75-A273-54AFA984DA8D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6CDDC564-5576-4887-9F90-AFF41DFA62A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6CDDC564-5576-4887-9F90-AFF41DFA62A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CDDC564-5576-4887-9F90-AFF41DFA62A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -40,15 +32,18 @@ Global
 		{FBBF1D31-338E-4212-8539-2C9CE59D02C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBBF1D31-338E-4212-8539-2C9CE59D02C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBBF1D31-338E-4212-8539-2C9CE59D02C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F7EFCF5-6AE6-44BB-81D8-17815338D04B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F7EFCF5-6AE6-44BB-81D8-17815338D04B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F7EFCF5-6AE6-44BB-81D8-17815338D04B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F7EFCF5-6AE6-44BB-81D8-17815338D04B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{D8A3FBC8-35CD-4979-938D-9C4D0CC3DAE0} = {37EC48E5-1FDF-44BE-A636-ED122996C32F}
-		{767387AD-CA31-4D75-A273-54AFA984DA8D} = {37EC48E5-1FDF-44BE-A636-ED122996C32F}
 		{6CDDC564-5576-4887-9F90-AFF41DFA62A5} = {37EC48E5-1FDF-44BE-A636-ED122996C32F}
 		{FBBF1D31-338E-4212-8539-2C9CE59D02C9} = {37EC48E5-1FDF-44BE-A636-ED122996C32F}
+		{8F7EFCF5-6AE6-44BB-81D8-17815338D04B} = {1165DD25-0A02-4AC6-80E8-D2EACF7317EA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A30F2A49-3DFC-4B01-B93E-D55D3139E5FA}

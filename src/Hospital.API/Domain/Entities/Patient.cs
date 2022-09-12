@@ -1,4 +1,5 @@
 ﻿using Hospital.API.Domain.Abstract;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sales.API.Domain.Entities;
 
@@ -12,6 +13,7 @@ public class Patient
 
     public string Address { get; private set; }
 
+    [NotMapped]
     public List<IDomainEvent> DomainEvents { get; private set; }
 
     private Patient() { }

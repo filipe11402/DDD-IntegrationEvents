@@ -1,4 +1,8 @@
 ﻿using Hospital.API.Domain.Repositories;
+using Hospital.API.Infrastructure.Context;
+using Hospital.API.Infrastructure.Mappers;
+using Hospital.API.Infrastructure.Repositories;
+using Hospital.API.Infrastructure.Workers;
 using Microsoft.EntityFrameworkCore;
 using Sales.API.Domain.Repositories;
 
@@ -15,7 +19,8 @@ public static class InjectDependencies
 
         services.AddScoped<IPatientRepository, PatientRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<IEventMapper, EventMapper>();
+        services.AddSingleton<IEventMapper, EventMapper>();
+        services.AddHostedService<IntegrationEventPublisherService>();
         //TODO: rabbit MQ
     }
 }

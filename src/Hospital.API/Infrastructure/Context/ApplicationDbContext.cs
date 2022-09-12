@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Sales.API.Domain.Entities;
 
-namespace Hospital.API.Infrastructure;
+namespace Hospital.API.Infrastructure.Context;
 
 public class ApplicationDbContext : DbContext
 {

@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hospital.API.Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
 using Sales.API.Domain.Entities;
 using Sales.API.Domain.Repositories;
 
-namespace Hospital.API.Infrastructure;
+namespace Hospital.API.Infrastructure.Repositories;
 
 public class PatientRepository : IPatientRepository
 {
@@ -16,7 +17,6 @@ public class PatientRepository : IPatientRepository
     public async Task<Patient> Add(Patient client)
     {
         await _dbContext.Patients.AddAsync(client);
-        await _dbContext.SaveChangesAsync();
 
         return client;
     }

@@ -10,6 +10,8 @@ public class Event
 
     public string Data { get; private set; }
 
+    private Event() { }
+
     public Event(Guid id, string eventName, DateTime dateOccurred, string data)
     {
         Id = id;

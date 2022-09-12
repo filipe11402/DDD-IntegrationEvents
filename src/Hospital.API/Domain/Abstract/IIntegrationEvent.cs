@@ -1,5 +1,5 @@
 ﻿namespace Hospital.API.Domain.Abstract;
 
-public interface IIntegrationEvent : IEvent
+public interface IIntegrationEvent
 {
 }
