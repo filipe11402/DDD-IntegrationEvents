@@ -13,6 +13,8 @@ builder.Services.AddInfrastructure();
 
 var app = builder.Build();
 
+app.Services.RegisterEventSubscriptions();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
