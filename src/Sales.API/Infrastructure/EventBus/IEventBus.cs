@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Sales.API.Domain.Events;
 
 namespace Sales.API.Infrastructure.EventBus;
 

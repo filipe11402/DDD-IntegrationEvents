@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Sales.API.Infrastructure;
+namespace Sales.API.Domain.Events;
 
 public interface IIntegrationEvent : INotification
 {

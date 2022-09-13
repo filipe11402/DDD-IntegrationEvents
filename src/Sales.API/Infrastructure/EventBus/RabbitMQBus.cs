@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using Sales.API.Domain.Events;
 using System.Text;
 
 namespace Sales.API.Infrastructure.EventBus;
@@ -12,23 +13,28 @@ public class RabbitMQBus : IEventBus
 
     private readonly IServiceProvider _serviceProvider;
 
+    private readonly ILogger<RabbitMQBus> _logger;
+
     private IModel _channel;
 
     private IConnectionFactory _connection;
 
     public RabbitMQBus(
         IEventBusSubscriptions eventBusSubscriptions,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        ILogger<RabbitMQBus> logger)
     {
         _subscriptions = eventBusSubscriptions;
         _serviceProvider = serviceProvider;
         _connection = new ConnectionFactory();
         _channel = _connection.CreateConnection()
             .CreateModel();
+        _logger = logger;
     }
 
     public Task Publish<TEvent>(TEvent @event) where TEvent : IIntegrationEvent
     {
+        //TODO: publish via this service
         throw new NotImplementedException();
     }
 
@@ -49,36 +55,10 @@ public class RabbitMQBus : IEventBus
             arguments: null
             );
 
-        var consumer = new EventingBasicConsumer(_channel);
+        var consumer = new AsyncEventingBasicConsumer(_channel);
 
-        consumer.Received += async (ch, args) =>
-        {
-            string queueMessageBodyAsString = Encoding.UTF8.GetString(args.Body.Span);
-
-            Type? eventType = _subscriptions.GetEventType(queueName)!;
-            Type? eventHandlerType = _subscriptions.GetHandler(queueName)!;
-
-            if (eventHandlerType is null) { Console.WriteLine("No event handler type was found for this queue"); return; }
-
-            //TODO: extract no another class
-            using var scope = _serviceProvider.CreateScope();
-
-            var eventHandler = scope.ServiceProvider.GetService(eventHandlerType);
-
-            if (eventHandler is null) { Console.WriteLine($"No handler found for {queueName} event"); return; }
-
-            var @event = (IIntegrationEvent)JsonConvert.DeserializeObject(queueMessageBodyAsString, eventType)!;
-
-            await (Task)eventHandlerType.GetMethod("Handle").Invoke(eventHandler, new object[] { @event, CancellationToken.None });
-
-            //await eventHandler.Handle(@event as IIntegrationEvent, CancellationToken.None);
-
-            Console.WriteLine($"Event was handled at {DateTime.UtcNow}");
-
-            _channel.BasicAck(args.DeliveryTag, multiple: false);
-
-            Console.WriteLine("Event was acknowledged");
-        };
+        //TODO: extract
+        consumer.Received += Consumer_Received;
 
         _channel.BasicConsume(
             queue: queueName,
@@ -86,9 +66,28 @@ public class RabbitMQBus : IEventBus
             consumer: consumer
             );
 
-        Console.WriteLine("Everything went OK");
+        _logger.LogInformation($"Subscribed to {queueName}");
 
         return Task.CompletedTask;
+    }
+
+    private async Task Consumer_Received(object sender, BasicDeliverEventArgs args) 
+    {
+        var queueName = args.RoutingKey;
+
+        string queueMessageBodyAsString = Encoding.UTF8.GetString(args.Body.Span);
+
+        Type? eventType = _subscriptions.GetEventType(queueName)!;
+
+        IIntegrationEvent @event = (IIntegrationEvent)JsonConvert.DeserializeObject(queueMessageBodyAsString, eventType)!;
+
+        await _subscriptions.HandleAsync(@event);
+
+        _logger.LogInformation($"Event was handled at {DateTime.UtcNow}");
+
+        _channel.BasicAck(args.DeliveryTag, multiple: false);
+
+        _logger.LogInformation("Event was acknowledged");
     }
 
     public Task Unsubscribe<TEvent, TEventHandler>(TEvent @event)

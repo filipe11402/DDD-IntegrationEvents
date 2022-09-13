@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Sales.API.Domain.Events;
 
 namespace Sales.API.Infrastructure;
 
@@ -23,10 +24,16 @@ public class EventBusSubscriptions : IEventBusSubscriptions
 
     private List<Type> _eventTypes = new();
 
-    //private readonly 
+    private readonly IServiceProvider _serviceProvider;
 
-    public EventBusSubscriptions()
+    private readonly ILogger<EventBusSubscriptions> _logger;
+
+    public EventBusSubscriptions(
+        IServiceProvider serviceProvider,
+        ILogger<EventBusSubscriptions> logger)
     {
+        _serviceProvider = serviceProvider;
+        _logger = logger;
     }
 
     public Task AddSubscription<TEvent, TEventHandler>()
@@ -54,19 +61,29 @@ public class EventBusSubscriptions : IEventBusSubscriptions
 
     public async Task HandleAsync<T>(T @event) where T : IIntegrationEvent
     {
-        var eventHandler = _handlers.GetValueOrDefault(@event.GetType());
+        KeyValuePair<Type, Type> subscribedEvent = _handlers.FirstOrDefault(x => x.Key.Name == @event.GetType().Name);
 
-        if (eventHandler is null) { return; } 
-        
+        if (subscribedEvent.Equals(default(KeyValuePair<Type, Type>)))
+        {
+            _logger.LogInformation($"No subscribed event was found for {@event.GetType().Name}");
+            return;
+        }
+
+        using var scope = _serviceProvider.CreateScope();
+
+        var eventHandler = scope.ServiceProvider.GetService(subscribedEvent.Value);
+
+        if (eventHandler is null)
+        {
+            _logger.LogInformation($"No Registered handler was found for {subscribedEvent.Value.Name}");
+            return;
+        }
+
+        await (Task)subscribedEvent.Value.GetMethod("Handle")!.Invoke(eventHandler, new object[] { @event, CancellationToken.None })!;
     }
 
     public Task RemoveSubscription(string @event)
     {
-        //if (_handlers.ContainsKey(@event)) 
-        //{
-        //    _handlers.Remove(@event);
-        //}
-
         return Task.CompletedTask;
     }
 }

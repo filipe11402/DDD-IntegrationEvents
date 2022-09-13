@@ -15,8 +15,6 @@ public class PatientCreatedIntegrationEventHandler : INotificationHandler<Patien
 
     public async Task Handle(PatientCreatedIntegrationEvent notification, CancellationToken cancellationToken)
     {
-        Console.WriteLine($"Integration event received {notification.Id}");
-
         var client = new Client(
             notification.Id,
             notification.Name,
