@@ -1,6 +1,5 @@
 ﻿using Hospital.API.Domain.Entities;
 using Hospital.API.Infrastructure.Context;
-using Hospital.API.Infrastructure.Mappers;
 using RabbitMQ.Client;
 using System.Text;
 
@@ -16,11 +15,15 @@ public class IntegrationEventPublisherService : BackgroundService
 
     private readonly ILogger<IntegrationEventPublisherService> _logger;
 
+    private IModel _channel;
+
     public IntegrationEventPublisherService(
         IServiceProvider serviceProvider,
         ILogger<IntegrationEventPublisherService> logger)
     {
-        _factory = new ConnectionFactory();
+        _factory = new ConnectionFactory() { Uri = new Uri("amqp://guest:guest@rabbitmq:5672/") };
+        _channel = _factory.CreateConnection()
+            .CreateModel();
         _serviceProvider = serviceProvider;
         _logger = logger;
     }
@@ -33,6 +36,8 @@ public class IntegrationEventPublisherService : BackgroundService
             await Task.Delay(DELAY_SECONDS);
             await PublishIntegrationEvents();
         }
+
+        _channel.Close();
     }
 
     private async Task PublishIntegrationEvents()
@@ -47,16 +52,14 @@ public class IntegrationEventPublisherService : BackgroundService
 
             if (events is not null || events!.Any())
             {
-                IConnection connection = _factory.CreateConnection();
-
-                using IModel channel = connection.CreateModel();
+                //IConnection connection = _factory.CreateConnection();
 
                 foreach (var integrationEvent in events!)
                 {
-                    AddEventToQueue(channel, integrationEvent);
+                    AddEventToQueue(_channel, integrationEvent);
                 }
 
-                connection.Close();
+                //connection.Close();
                 _logger.LogInformation($"Events that were published are being removed");
                 dbContext.Events.RemoveRange(events!);
                 await dbContext.SaveChangesAsync();
@@ -65,6 +68,7 @@ public class IntegrationEventPublisherService : BackgroundService
         }
         catch (Exception ex)
         {
+            _channel.Close();
             _logger.LogError(ex.ToString());
         }
     }

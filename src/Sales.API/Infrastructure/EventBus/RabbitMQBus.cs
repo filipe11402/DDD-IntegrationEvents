@@ -11,8 +11,6 @@ public class RabbitMQBus : IEventBus
 {
     private readonly IEventBusSubscriptions _subscriptions;
 
-    private readonly IServiceProvider _serviceProvider;
-
     private readonly ILogger<RabbitMQBus> _logger;
 
     private IModel _channel;
@@ -21,14 +19,10 @@ public class RabbitMQBus : IEventBus
 
     public RabbitMQBus(
         IEventBusSubscriptions eventBusSubscriptions,
-        IServiceProvider serviceProvider,
         ILogger<RabbitMQBus> logger)
     {
         _subscriptions = eventBusSubscriptions;
-        _serviceProvider = serviceProvider;
-        _connection = new ConnectionFactory();
-        _channel = _connection.CreateConnection()
-            .CreateModel();
+        _connection = new ConnectionFactory() { Uri = new Uri("amqp://guest:guest@rabbitmq:5672/") };
         _logger = logger;
     }
 
@@ -47,6 +41,16 @@ public class RabbitMQBus : IEventBus
 
         _subscriptions.AddSubscription<TEvent, TEventHandler>();
 
+        _channel = _connection.CreateConnection()
+            .CreateModel();
+
+        //_channel.QueueBind(
+        //    queue: queueName,
+        //    exchange: null,
+        //    routingKey: queueName,
+        //    arguments: null
+        //    );
+
         _channel.QueueDeclare(
             queueName,
             true,
@@ -55,9 +59,8 @@ public class RabbitMQBus : IEventBus
             arguments: null
             );
 
-        var consumer = new AsyncEventingBasicConsumer(_channel);
+        var consumer = new EventingBasicConsumer(_channel);
 
-        //TODO: extract
         consumer.Received += Consumer_Received;
 
         _channel.BasicConsume(
@@ -71,7 +74,7 @@ public class RabbitMQBus : IEventBus
         return Task.CompletedTask;
     }
 
-    private async Task Consumer_Received(object sender, BasicDeliverEventArgs args) 
+    private void Consumer_Received(object sender, BasicDeliverEventArgs args) 
     {
         var queueName = args.RoutingKey;
 
@@ -81,7 +84,7 @@ public class RabbitMQBus : IEventBus
 
         IIntegrationEvent @event = (IIntegrationEvent)JsonConvert.DeserializeObject(queueMessageBodyAsString, eventType)!;
 
-        await _subscriptions.HandleAsync(@event);
+        Task.WaitAll(_subscriptions.HandleAsync(@event));
 
         _logger.LogInformation($"Event was handled at {DateTime.UtcNow}");
 

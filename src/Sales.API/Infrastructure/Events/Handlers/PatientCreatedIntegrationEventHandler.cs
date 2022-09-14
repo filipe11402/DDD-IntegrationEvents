@@ -8,9 +8,14 @@ public class PatientCreatedIntegrationEventHandler : INotificationHandler<Patien
 {
     private readonly IClientRepository _clientRepository;
 
-    public PatientCreatedIntegrationEventHandler(IClientRepository clientRepository)
+    private readonly ILogger<PatientCreatedIntegrationEventHandler> _logger;
+
+    public PatientCreatedIntegrationEventHandler(
+        IClientRepository clientRepository,
+        ILogger<PatientCreatedIntegrationEventHandler> logger)
     {
         _clientRepository = clientRepository;
+        _logger = logger;
     }
 
     public async Task Handle(PatientCreatedIntegrationEvent notification, CancellationToken cancellationToken)
@@ -23,5 +28,7 @@ public class PatientCreatedIntegrationEventHandler : INotificationHandler<Patien
             );
 
         await _clientRepository.Add(client);
+
+        _logger.LogInformation($"Event handled inside handler");
     }
 }

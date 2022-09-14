@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  hospital:
+    image: "hospital-pubsub-demo"
+    container_name: hospital-pubsub-demo
+    ports:
+      - "3000:80"
+    networks:
+      - pubsubdemo
+    build:
+      context: .
+      dockerfile: ./src/Hospital.API/Dockerfile
+    restart: always
+    depends_on: 
+      - rabbitmq
+
+  sales:
+    image: "sales-pubsub-demo"
+    container_name: sales-pubsub-demo
+    ports:
+      - "4000:80"
+    networks:
+      - pubsubdemo
+    build:
+      context: .
+      dockerfile: ./src/Sales.API/Dockerfile
+    restart: always
+    depends_on: 
+      - rabbitmq
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+    - "4369:4369"
+    - "5671:5671"
+    - "5672:5672"
+    - "25672:25672"
+    - "15671:15671"
+    - "15672:15672"
+    networks:
+      - pubsubdemo
+
+networks:
+  pubsubdemo:
+    driver: bridge

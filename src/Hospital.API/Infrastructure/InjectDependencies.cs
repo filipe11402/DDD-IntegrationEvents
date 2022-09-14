@@ -14,7 +14,7 @@ public static class InjectDependencies
     {
         services.AddDbContext<ApplicationDbContext>(options =>
         {
-            options.UseInMemoryDatabase("SalesDB");
+            options.UseInMemoryDatabase("HospitalDB");
         });
 
         services.AddScoped<IPatientRepository, PatientRepository>();
