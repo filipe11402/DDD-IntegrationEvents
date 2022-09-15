@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Sales.API.Domain.Events;
 
-namespace Sales.API.Infrastructure;
+namespace Sales.API.Infrastructure.Subscriptions;
 
 public interface IEventBusSubscriptions
 {
@@ -41,7 +41,7 @@ public class EventBusSubscriptions : IEventBusSubscriptions
         where TEventHandler : INotificationHandler<TEvent>
     {
         if (!_handlers.ContainsKey(typeof(TEvent)))
-        {   
+        {
             _handlers.Add(typeof(TEvent), typeof(TEventHandler));
             _eventTypes.Add(typeof(TEvent));
         }

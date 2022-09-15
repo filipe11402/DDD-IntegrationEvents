@@ -11,7 +11,7 @@ public class IntegrationEventPublisherService : BackgroundService
 
     private const int DELAY_SECONDS = 3;
 
-    private ConnectionFactory _factory;
+    private IConnectionFactory _factory;
 
     private readonly ILogger<IntegrationEventPublisherService> _logger;
 
@@ -19,9 +19,10 @@ public class IntegrationEventPublisherService : BackgroundService
 
     public IntegrationEventPublisherService(
         IServiceProvider serviceProvider,
-        ILogger<IntegrationEventPublisherService> logger)
+        ILogger<IntegrationEventPublisherService> logger,
+        ConnectionFactory factory)
     {
-        _factory = new ConnectionFactory() { Uri = new Uri("amqp://guest:guest@rabbitmq:5672/") };
+        _factory = factory;
         _channel = _factory.CreateConnection()
             .CreateModel();
         _serviceProvider = serviceProvider;
@@ -30,7 +31,8 @@ public class IntegrationEventPublisherService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("IntegrationEvents Worker is starting");
+        _logger.LogInformation("Reading Events to publish");
+
         while (!stoppingToken.IsCancellationRequested)
         {
             await Task.Delay(DELAY_SECONDS);
@@ -48,20 +50,18 @@ public class IntegrationEventPublisherService : BackgroundService
 
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            List<Event> events = dbContext.Events.AsQueryable().ToList() ?? new();
+            List<Event> events = dbContext.Events.Where(x => x.ProcessedDate == null)
+                .AsQueryable()
+                .ToList() ?? new();
 
             if (events is not null || events!.Any())
             {
-                //IConnection connection = _factory.CreateConnection();
-
-                foreach (var integrationEvent in events!)
+                foreach (var @event in events!)
                 {
-                    AddEventToQueue(_channel, integrationEvent);
+                    AddEventToQueue(_channel, @event);
                 }
 
-                //connection.Close();
-                _logger.LogInformation($"Events that were published are being removed");
-                dbContext.Events.RemoveRange(events!);
+                _logger.LogInformation($"Updating events processed Date");
                 await dbContext.SaveChangesAsync();
             }
 
@@ -73,12 +73,10 @@ public class IntegrationEventPublisherService : BackgroundService
         }
     }
 
-    private void AddEventToQueue(IModel channel, Event integrationEvent)
+    private void AddEventToQueue(IModel channel, Event @event)
     {
-        _logger.LogInformation($"Event published at {DateTime.UtcNow}");
-
         channel.QueueDeclare(
-            integrationEvent.EventName,
+            @event.EventName,
             durable: true,
             exclusive: false,
             autoDelete: false,
@@ -88,9 +86,13 @@ public class IntegrationEventPublisherService : BackgroundService
         //Using default exchange
         channel.BasicPublish(
             exchange: "",
-            routingKey: integrationEvent.EventName,
+            routingKey: @event.EventName,
             basicProperties: null,
-            body: Encoding.UTF8.GetBytes(integrationEvent.Data)
+            body: Encoding.UTF8.GetBytes(@event.Data)
             );
+
+        @event.Processed();
+
+        _logger.LogInformation($"Event published at {DateTime.UtcNow}");
     }
 }

@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Sales.API.Domain.Events;
+using Sales.API.Infrastructure.Subscriptions;
 using System.Text;
 
 namespace Sales.API.Infrastructure.EventBus;
@@ -19,11 +20,15 @@ public class RabbitMQBus : IEventBus
 
     public RabbitMQBus(
         IEventBusSubscriptions eventBusSubscriptions,
-        ILogger<RabbitMQBus> logger)
+        ILogger<RabbitMQBus> logger,
+        ConnectionFactory connection)
     {
         _subscriptions = eventBusSubscriptions;
-        _connection = new ConnectionFactory() { Uri = new Uri("amqp://guest:guest@rabbitmq:5672/") };
+        _connection = connection;
+        _channel = _connection.CreateConnection()
+            .CreateModel();
         _logger = logger;
+        
     }
 
     public Task Publish<TEvent>(TEvent @event) where TEvent : IIntegrationEvent
@@ -40,16 +45,6 @@ public class RabbitMQBus : IEventBus
         var brokerName = "";
 
         _subscriptions.AddSubscription<TEvent, TEventHandler>();
-
-        _channel = _connection.CreateConnection()
-            .CreateModel();
-
-        //_channel.QueueBind(
-        //    queue: queueName,
-        //    exchange: null,
-        //    routingKey: queueName,
-        //    arguments: null
-        //    );
 
         _channel.QueueDeclare(
             queueName,
@@ -74,7 +69,7 @@ public class RabbitMQBus : IEventBus
         return Task.CompletedTask;
     }
 
-    private void Consumer_Received(object sender, BasicDeliverEventArgs args) 
+    private void Consumer_Received(object? sender, BasicDeliverEventArgs args) 
     {
         var queueName = args.RoutingKey;
 

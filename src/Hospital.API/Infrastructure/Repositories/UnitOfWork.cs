@@ -5,7 +5,6 @@ using Hospital.API.Infrastructure.Context;
 using Hospital.API.Infrastructure.Mappers;
 using MediatR;
 using Newtonsoft.Json;
-using Sales.API.Domain.Entities;
 
 namespace Hospital.API.Infrastructure.Repositories;
 
@@ -27,10 +26,9 @@ public class UnitOfWork : IUnitOfWork
         _mediator = mediator;
     }
 
-    //TODO: use base entity class
     public async Task Commit(CancellationToken cancellationToken)
     {
-        List<Patient> patients = _dbContext.ChangeTracker.Entries<Patient>()
+        List<AggregateRoot> patients = _dbContext.ChangeTracker.Entries<AggregateRoot>()
             .Where(x => x.Entity.DomainEvents is not null && x.Entity.DomainEvents.Any())
             .Select(x => x.Entity)
             .ToList();
@@ -41,19 +39,19 @@ public class UnitOfWork : IUnitOfWork
         ClearEvents(patients);
     }
 
-    private async void DispatchEvents(List<Patient> patients)
+    private async void DispatchEvents(List<AggregateRoot> aggregates)
     {
-        IEnumerable<IDomainEvent> domainEvents = patients.SelectMany(x => x.DomainEvents);
+        IEnumerable<IDomainEvent> domainEvents = aggregates.SelectMany(x => x.DomainEvents);
 
         foreach (var domainEvent in domainEvents)
         {
             IIntegrationEvent? integrationEvent = _eventMapper.MapDomainEvent(domainEvent);
 
-            //Dispatch the event via Mediator as it is a Domain event
             if (integrationEvent is null) { continue; }
 
             await _dbContext.Events.AddAsync(
-                new Event(Guid.NewGuid(),
+                new Event(
+                Guid.NewGuid(),
                 integrationEvent.GetType().Name,
                 DateTime.UtcNow,
                 JsonConvert.SerializeObject(integrationEvent)
@@ -63,8 +61,8 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
-    private void ClearEvents(List<Patient> patients)
+    private void ClearEvents(List<AggregateRoot> aggregates)
     {
-        patients.ForEach(x => x.ClearDomainEvents());
+        aggregates.ForEach(x => x.ClearDomainEvents());
     }
 }

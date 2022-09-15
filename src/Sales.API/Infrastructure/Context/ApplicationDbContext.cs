@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sales.API.Domain.Entities;
 
-namespace Sales.API.Infrastructure;
+namespace Sales.API.Infrastructure.Context;
 
 public class ApplicationDbContext : DbContext
 {

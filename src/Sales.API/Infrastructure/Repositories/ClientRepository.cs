@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sales.API.Domain.Entities;
 using Sales.API.Domain.Repositories;
+using Sales.API.Infrastructure.Context;
 
-namespace Sales.API.Infrastructure;
+namespace Sales.API.Infrastructure.Repositories;
 
 public class ClientRepository : IClientRepository
 {

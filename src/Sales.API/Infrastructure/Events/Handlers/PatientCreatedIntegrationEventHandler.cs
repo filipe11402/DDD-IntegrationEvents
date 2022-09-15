@@ -28,7 +28,5 @@ public class PatientCreatedIntegrationEventHandler : INotificationHandler<Patien
             );
 
         await _clientRepository.Add(client);
-
-        _logger.LogInformation($"Event handled inside handler");
     }
 }
