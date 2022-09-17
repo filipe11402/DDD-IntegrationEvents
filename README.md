@@ -63,8 +63,23 @@ To achieve this, we will use in our favor 2 patterns
 
 **OutboxPattern**, this will help us, ensure that the events are sent, and if any errors occur while sending, they will be kept until sent.
 
-TODO:???
+We create our Domain event in the Domain layer, inheriting from our `IDomainEvent` interface
 
+```cs
+public record PatientCreatedDomainEvent(Guid Id, string Name, string Email, string Address) : IDomainEvent;
+```
+
+Now, how would we say that this has happened?
+
+For that, since this is related to when a `Patient` is created, we will do it inside the constructor
+
+Inside the constructor we would do
+```cs
+...
+DomainEvents.Add(
+    new PatientCreatedDomainEvent(Id, Name, Email, Address)
+);
+```
 
 ## Run the project
 
@@ -73,11 +88,11 @@ docker compose up
 ```
 The project will start all three services in the following endpoints
 
-- Hospital
+- Hospital API
     - localhost:4000
-- Sales
+- Sales API
     - localhost:3000
-- RabbitMQ
+- RabbitMQ Service
     - localhost:15672(management UI)
     - localhost:5672(channel)
 

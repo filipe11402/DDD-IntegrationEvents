@@ -29,7 +29,7 @@ public class UnitOfWork : IUnitOfWork
     public async Task Commit(CancellationToken cancellationToken)
     {
         List<AggregateRoot> patients = _dbContext.ChangeTracker.Entries<AggregateRoot>()
-            .Where(x => x.Entity.DomainEvents is not null && x.Entity.DomainEvents.Any())
+            .Where(x => x.Entity.DomainEvents is not null && x.Entity.DomainEvents!.Any())
             .Select(x => x.Entity)
             .ToList();
 
