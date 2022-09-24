@@ -202,6 +202,20 @@ To finalize, to handle those events, we will need to call our `Consumer_Received
 
 ---
 
+## Examples to test
+
+We can test a scenario, that will most certainly happen during any software lifetime, that is
+1 - Run only the `Hospital.API` project
+2 - Try and create a new Patient
+
+What will happen?
+
+Since we used a message broker, our event as published, but the consumers didn't consume it yet!(Kinda simulated when one of our services is down)
+
+Now, if we run the `Sales.API`, we can see that the event was consumed, and it is not in the queue!
+
+This will help us keep the data consistent and assure that the system will continue to work and what happened while it was down, doesn't just vanish.
+
 ## Final thoughts
 As this demo shows, we can achieve with this more consistency with our system and how it propagates information to other external systems.
 
@@ -228,15 +242,16 @@ The project will start all three services in the following endpoints
     - localhost:15672(management UI)
     - localhost:5672(channel)
 
-
 ## References
 
 TODO: ???
 
-Nelson
+[NelsonBN RabbitMQ](https://github.com/NelsonBN/demo-rabbitmq)
 
-Microsoft
+[Microsoft](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/domain-events-design-implementation)
 
-Integration events project that i starred
+[Event Bus](https://github.com/evgomes/net-core-event-bus)
 
-Renato Groffe
+[Renato Groffe RabbitMQ](https://renatogroffe.medium.com/net-5-rabbitmq-exemplos-de-implementa%C3%A7%C3%A3o-1366663b8519)
+
+[Domain Events](https://github.com/filipe11402/DDD-DomainEvents)
