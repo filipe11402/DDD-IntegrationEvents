@@ -205,7 +205,9 @@ To finalize, to handle those events, we will need to call our `Consumer_Received
 ## Examples to test
 
 We can test a scenario, that will most certainly happen during any software lifetime, that is
+
 1 - Run only the `Hospital.API` project
+
 2 - Try and create a new Patient
 
 What will happen?
@@ -243,8 +245,6 @@ The project will start all three services in the following endpoints
     - localhost:5672(channel)
 
 ## References
-
-TODO: ???
 
 [NelsonBN RabbitMQ](https://github.com/NelsonBN/demo-rabbitmq)
 
